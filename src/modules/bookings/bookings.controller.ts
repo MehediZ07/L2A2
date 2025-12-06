@@ -87,7 +87,7 @@ export const updateBooking = async (req: AuthRequest, res: Response) => {
   const currentUser = req.user!;
 
   try {
-    const booking = await bookingService.updateBookingStatus(bookingId, status, currentUser.id, currentUser.role);
+    const booking = await bookingService.updateBookingStatus(bookingId!, status, currentUser.id, currentUser.role);
 
     const message = status === 'cancelled' 
       ? 'Booking cancelled successfully'

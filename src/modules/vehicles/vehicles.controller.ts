@@ -49,7 +49,7 @@ export const getVehicleById = async (req: Request, res: Response) => {
   const { vehicleId } = req.params;
 
   try {
-    const vehicle = await vehicleService.getVehicleById(vehicleId);
+    const vehicle = await vehicleService.getVehicleById(vehicleId!);
     
     if (!vehicle) {
       return res.status(404).json({
@@ -76,7 +76,7 @@ export const updateVehicle = async (req: Request, res: Response) => {
   const updates = req.body;
 
   try {
-    const vehicle = await vehicleService.updateVehicle(vehicleId, updates);
+    const vehicle = await vehicleService.updateVehicle(vehicleId!, updates);
 
     if (!vehicle) {
       return res.status(404).json({
@@ -102,7 +102,7 @@ export const deleteVehicle = async (req: Request, res: Response) => {
   const { vehicleId } = req.params;
 
   try {
-    const deleted = await vehicleService.deleteVehicle(vehicleId);
+    const deleted = await vehicleService.deleteVehicle(vehicleId!);
 
     if (!deleted) {
       return res.status(404).json({

@@ -28,7 +28,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
   const currentUser = req.user!;
 
   try {
-    if (currentUser.role !== 'admin' && currentUser.id !== parseInt(userId)) {
+    if (currentUser.role !== 'admin' && currentUser.id !== parseInt(userId!)) {
       return res.status(403).json({
         success: false,
         message: 'You can only update your own profile'
@@ -39,7 +39,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       delete updates.role;
     }
 
-    const user = await userService.updateUser(userId, updates);
+    const user = await userService.updateUser(userId!, updates);
 
     if (!user) {
       return res.status(404).json({
@@ -65,7 +65,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
   try {
-    const deleted = await userService.deleteUser(userId);
+    const deleted = await userService.deleteUser(userId!);
 
     if (!deleted) {
       return res.status(404).json({
