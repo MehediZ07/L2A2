@@ -26,14 +26,7 @@ export const signin = async (req: Request, res: Response) => {
   try {
     const result = await authService.loginUser(email, password);
     
-    if (result === null) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials'
-      });
-    }
-
-    if (result === false) {
+    if (!result) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
