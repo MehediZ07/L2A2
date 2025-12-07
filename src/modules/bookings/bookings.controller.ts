@@ -6,7 +6,8 @@ interface AuthRequest extends Request {
 }
 
 export const createBooking = async (req: AuthRequest, res: Response) => {
-  const { customer_id, vehicle_id, rent_start_date, rent_end_date } = req.body;
+  const { vehicle_id, rent_start_date, rent_end_date } = req.body;
+  const customer_id = req.user!.id;
 
   try {
     const booking = await bookingService.createBooking({ customer_id, vehicle_id, rent_start_date, rent_end_date });

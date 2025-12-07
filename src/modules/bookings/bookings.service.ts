@@ -3,6 +3,27 @@ import { pool } from '../../config/database';
 export const createBooking = async (bookingData: any) => {
   const { customer_id, vehicle_id, rent_start_date, rent_end_date } = bookingData;
 
+  if (!vehicle_id || !rent_start_date || !rent_end_date) {
+    throw new Error('vehicle_id, rent_start_date, and rent_end_date are required');
+  }
+
+  const startDate = new Date(rent_start_date);
+  const endDate = new Date(rent_end_date);
+  
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    throw new Error('Invalid date format');
+  }
+  
+  if (endDate <= startDate) {
+    throw new Error('rent_end_date must be after rent_start_date');
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (startDate < today) {
+    throw new Error('rent_start_date cannot be in the past');
+  }
+
   const vehicleResult = await pool.query('SELECT * FROM vehicles WHERE id = $1', [vehicle_id]);
   
   if (vehicleResult.rows.length === 0) {
@@ -15,29 +36,36 @@ export const createBooking = async (bookingData: any) => {
     throw new Error('Vehicle is not available');
   }
 
-  const startDate = new Date(rent_start_date);
-  const endDate = new Date(rent_end_date);
   const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
   const total_price = days * vehicle.daily_rent_price;
 
+  if (total_price <= 0) {
+    throw new Error('Total price must be positive');
+  }
+
   await pool.query('BEGIN');
 
-  const bookingResult = await pool.query(
-    'INSERT INTO bookings (customer_id, vehicle_id, rent_start_date, rent_end_date, total_price) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [customer_id, vehicle_id, rent_start_date, rent_end_date, total_price]
-  );
+  try {
+    const bookingResult = await pool.query(
+      'INSERT INTO bookings (customer_id, vehicle_id, rent_start_date, rent_end_date, total_price) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [customer_id, vehicle_id, rent_start_date, rent_end_date, total_price]
+    );
 
-  await pool.query('UPDATE vehicles SET availability_status = $1 WHERE id = $2', ['booked', vehicle_id]);
+    await pool.query('UPDATE vehicles SET availability_status = $1 WHERE id = $2', ['booked', vehicle_id]);
 
-  await pool.query('COMMIT');
+    await pool.query('COMMIT');
 
-  const booking = bookingResult.rows[0];
-  booking.vehicle = {
-    vehicle_name: vehicle.vehicle_name,
-    daily_rent_price: vehicle.daily_rent_price
-  };
+    const booking = bookingResult.rows[0];
+    booking.vehicle = {
+      vehicle_name: vehicle.vehicle_name,
+      daily_rent_price: vehicle.daily_rent_price
+    };
 
-  return booking;
+    return booking;
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    throw error;
+  }
 };
 
 export const autoReturnExpiredBookings = async () => {
@@ -76,7 +104,7 @@ export const getBookingsByRole = async (userId: number, role: string) => {
       FROM bookings b
       JOIN users u ON b.customer_id = u.id
       JOIN vehicles v ON b.vehicle_id = v.id
-      ORDER BY b.id
+      ORDER BY b.created_at DESC
     `;
   } else {
     query = `
@@ -85,7 +113,7 @@ export const getBookingsByRole = async (userId: number, role: string) => {
       FROM bookings b
       JOIN vehicles v ON b.vehicle_id = v.id
       WHERE b.customer_id = $1
-      ORDER BY b.id
+      ORDER BY b.created_at DESC
     `;
     params = [userId];
   }
@@ -135,14 +163,21 @@ export const updateBookingStatus = async (bookingId: string, status: string, use
 
   await pool.query('BEGIN');
 
-  const result = await pool.query(
-    'UPDATE bookings SET status = $1 WHERE id = $2 RETURNING *',
-    [status, bookingId]
-  );
+  try {
+    const result = await pool.query(
+      'UPDATE bookings SET status = $1 WHERE id = $2 RETURNING *',
+      [status, bookingId]
+    );
 
-  await pool.query('UPDATE vehicles SET availability_status = $1 WHERE id = $2', ['available', booking.vehicle_id]);
+    if (status === 'cancelled' || status === 'returned') {
+      await pool.query('UPDATE vehicles SET availability_status = $1 WHERE id = $2', ['available', booking.vehicle_id]);
+    }
 
-  await pool.query('COMMIT');
+    await pool.query('COMMIT');
 
-  return result.rows[0];
+    return result.rows[0];
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    throw error;
+  }
 };
