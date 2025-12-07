@@ -25,10 +25,24 @@ export const getAllUsers = async (req: Request, res: Response) => {
 export const updateUser = async (req: AuthRequest, res: Response) => {
   const { userId } = req.params;
   const updates = req.body;
-  const currentUser = req.user!;
+  const currentUser = req.user;
+
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      message: 'User ID is required'
+    });
+  }
+
+  if (!currentUser) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
 
   try {
-    if (currentUser.role !== 'admin' && currentUser.id !== parseInt(userId!)) {
+    if (currentUser.role !== 'admin' && currentUser.id !== parseInt(userId)) {
       return res.status(403).json({
         success: false,
         message: 'You can only update your own profile'
@@ -39,7 +53,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       delete updates.role;
     }
 
-    const user = await userService.updateUser(userId!, updates);
+    const user = await userService.updateUser(userId, updates);
 
     if (!user) {
       return res.status(404).json({
@@ -64,8 +78,15 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      message: 'User ID is required'
+    });
+  }
+
   try {
-    const deleted = await userService.deleteUser(userId!);
+    const deleted = await userService.deleteUser(userId);
 
     if (!deleted) {
       return res.status(404).json({
