@@ -120,7 +120,7 @@ GET http://localhost:5000/
 Expected response:
 ```json
 {
-  "message": "Vehicle Rental API is running!",
+  "message": "Express Server Vehicle Rental API is running",
   "version": "1.0.0"
 }
 ```

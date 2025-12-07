@@ -19,7 +19,7 @@ initDB().then(() => {
 
 app.get("/", (req, res) => {
   res.json({
-    message: "Vehicle Rental API is running!",
+    message: "Express Server Vehicle Rental API is running",
     version: "1.0.0"
   });
 });
