@@ -6,8 +6,22 @@ interface AuthRequest extends Request {
 }
 
 export const createBooking = async (req: AuthRequest, res: Response) => {
-  const { vehicle_id, rent_start_date, rent_end_date } = req.body;
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No data provided for booking creation'
+    });
+  }
+
+  const { vehicle_id, rent_start_date, rent_end_date, customer_id: providedCustomerId } = req.body;
   const customer_id = req.user!.id;
+
+  if (providedCustomerId && providedCustomerId !== customer_id && req.user!.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'You can only create bookings for yourself'
+    });
+  }
 
   try {
     const booking = await bookingService.createBooking({ customer_id, vehicle_id, rent_start_date, rent_end_date });
@@ -86,6 +100,13 @@ export const updateBooking = async (req: AuthRequest, res: Response) => {
   const { bookingId } = req.params;
   const { status } = req.body;
   const currentUser = req.user!;
+
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No data provided for update'
+    });
+  }
 
   try {
     const booking = await bookingService.updateBookingStatus(bookingId!, status, currentUser.id, currentUser.role);

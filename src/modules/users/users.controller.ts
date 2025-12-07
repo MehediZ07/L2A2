@@ -41,6 +41,13 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
     });
   }
 
+  if (!updates || Object.keys(updates).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No data provided for update'
+    });
+  }
+
   try {
     if (currentUser.role !== 'admin' && currentUser.id !== parseInt(userId)) {
       return res.status(403).json({
@@ -50,7 +57,10 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
     }
 
     if (currentUser.role !== 'admin' && updates.role) {
-      delete updates.role;
+      return res.status(403).json({
+        success: false,
+        message: 'Only admins can update user roles'
+      });
     }
 
     const user = await userService.updateUser(userId, updates);

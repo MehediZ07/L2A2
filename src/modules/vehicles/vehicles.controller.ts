@@ -2,6 +2,13 @@ import { Request, Response } from 'express';
 import * as vehicleService from './vehicles.service';
 
 export const createVehicle = async (req: Request, res: Response) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No data provided for vehicle creation'
+    });
+  }
+
   try {
     const vehicle = await vehicleService.createVehicle(req.body);
 
@@ -83,6 +90,13 @@ export const updateVehicle = async (req: Request, res: Response) => {
     return res.status(400).json({
       success: false,
       message: 'Vehicle ID is required'
+    });
+  }
+
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No data provided for update'
     });
   }
 

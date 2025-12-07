@@ -2,6 +2,13 @@ import { Request, Response } from 'express';
 import * as authService from './auth.service';
 
 export const signup = async (req: Request, res: Response) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No data provided for registration'
+    });
+  }
+
   const { name, email, password, phone, role = 'customer' } = req.body;
 
   try {
@@ -21,6 +28,13 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const signin = async (req: Request, res: Response) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'No data provided for login'
+    });
+  }
+
   const { email, password } = req.body;
 
   try {
