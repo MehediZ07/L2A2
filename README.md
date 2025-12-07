@@ -2,9 +2,9 @@
 
 A comprehensive RESTful API for managing vehicle rentals with user authentication, vehicle management, and booking functionality.
 
-**🌐 Live URL:** [https://expressserver-liard.vercel.app/](https://expressserver-liard.vercel.app/)
+**Live URL:** [https://expressserver-liard.vercel.app/](https://expressserver-liard.vercel.app/)
 
-## ✨ Features
+## Features
 
 - **User Authentication & Authorization**
   - User registration and login
@@ -28,7 +28,7 @@ A comprehensive RESTful API for managing vehicle rentals with user authenticatio
   - Automatic table creation and schema management
   - Data validation and constraints
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend
 - **Node.js** - Runtime environment
@@ -43,7 +43,7 @@ A comprehensive RESTful API for managing vehicle rentals with user authenticatio
 - **Vercel** - Deployment platform
 - **dotenv** - Environment configuration
 
-## 📋 API Endpoints
+## API Endpoints
 
 ### Authentication
 - `POST /api/v1/auth/signup` - User registration
@@ -64,7 +64,7 @@ A comprehensive RESTful API for managing vehicle rentals with user authenticatio
 ### Users
 - User management endpoints (Authenticated)
 
-## 🚀 Setup & Usage Instructions
+## Setup & Usage Instructions
 
 ### Prerequisites
 - Node.js (v16 or higher)
@@ -125,7 +125,7 @@ Expected response:
 }
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -144,7 +144,7 @@ src/
 └── server.ts            # Application entry point
 ```
 
-## 🔒 Authentication
+## Authentication
 
 The API uses JWT tokens for authentication. Include the token in the Authorization header:
 
@@ -152,10 +152,10 @@ The API uses JWT tokens for authentication. Include the token in the Authorizati
 Authorization: Bearer <your_jwt_token>
 ```
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License.
 
 ---
 
-**Built with ❤️ using Node.js, Express, and TypeScript**
+**Built using Node.js, Express, and TypeScript**
