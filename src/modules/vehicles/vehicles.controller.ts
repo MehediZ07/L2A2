@@ -2,10 +2,8 @@ import { Request, Response } from 'express';
 import * as vehicleService from './vehicles.service';
 
 export const createVehicle = async (req: Request, res: Response) => {
-  const { vehicle_name, type, registration_number, daily_rent_price, availability_status = 'available' } = req.body;
-
   try {
-    const vehicle = await vehicleService.createVehicle({ vehicle_name, type, registration_number, daily_rent_price, availability_status });
+    const vehicle = await vehicleService.createVehicle(req.body);
 
     res.status(201).json({
       success: true,
@@ -48,8 +46,15 @@ export const getAllVehicles = async (req: Request, res: Response) => {
 export const getVehicleById = async (req: Request, res: Response) => {
   const { vehicleId } = req.params;
 
+  if (!vehicleId) {
+    return res.status(400).json({
+      success: false,
+      message: 'Vehicle ID is required'
+    });
+  }
+
   try {
-    const vehicle = await vehicleService.getVehicleById(vehicleId!);
+    const vehicle = await vehicleService.getVehicleById(vehicleId);
     
     if (!vehicle) {
       return res.status(404).json({
@@ -73,10 +78,16 @@ export const getVehicleById = async (req: Request, res: Response) => {
 
 export const updateVehicle = async (req: Request, res: Response) => {
   const { vehicleId } = req.params;
-  const updates = req.body;
+
+  if (!vehicleId) {
+    return res.status(400).json({
+      success: false,
+      message: 'Vehicle ID is required'
+    });
+  }
 
   try {
-    const vehicle = await vehicleService.updateVehicle(vehicleId!, updates);
+    const vehicle = await vehicleService.updateVehicle(vehicleId, req.body);
 
     if (!vehicle) {
       return res.status(404).json({
@@ -101,8 +112,15 @@ export const updateVehicle = async (req: Request, res: Response) => {
 export const deleteVehicle = async (req: Request, res: Response) => {
   const { vehicleId } = req.params;
 
+  if (!vehicleId) {
+    return res.status(400).json({
+      success: false,
+      message: 'Vehicle ID is required'
+    });
+  }
+
   try {
-    const deleted = await vehicleService.deleteVehicle(vehicleId!);
+    const deleted = await vehicleService.deleteVehicle(vehicleId);
 
     if (!deleted) {
       return res.status(404).json({
